@@ -1,0 +1,362 @@
+<script language="JavaScript" type="text/JavaScript">
+<!--
+function MM_openBrWindow(theURL,winName,features) { //v2.0
+  window.open(theURL,winName,features);
+}
+//-->
+</script>
+
+<?
+/*
+20091215
+Daniel Felipe Rentería Martínez
+Temáticas
+*/
+
+//Inicializa las variables de sesión
+session_start();
+
+//Validación de ingreso
+include("../verificaIngreso1.php");
+
+//Manejo de Archivos
+include("../manejoArchivos.php");
+
+//Conexión a la Base de Datos
+include("../enlaceBD.php");
+$conexion = conectar();
+
+//Proyectos
+$sql1 = " SELECT * FROM Proyectos WHERE idProyecto = " . $_SESSION["phsProyecto"] . " AND etapaProyecto = " . $_SESSION["phsEtapa"];
+$cursor1 = mssql_query($sql1);
+if($reg1 = mssql_fetch_array($cursor1)){
+	$nombreProyecto = $reg1[nombreProyecto];
+	$etapaProyecto = $reg1[etapaProyecto];
+}
+
+//Temáticas
+$sql2 = " SELECT * FROM Tematicas WHERE idProyecto = " . $_SESSION["phsProyecto"];
+$sql2 = $sql2 . " AND etapaProyecto = " . $_SESSION["phsEtapa"];
+$sql2 = $sql2 . " AND idTematica = " . $_SESSION["phsTematica"];
+$cursor2 = mssql_query($sql2);
+if($reg2 = mssql_fetch_array($cursor2)){
+	$nombreTematica = $reg2[nombreTematica];
+	if($reg2[idTematica] != $reg2[idTematicaPadre]){
+		$sql2a = " SELECT nombreTematica FROM Tematicas WHERE idTematica = " . $reg2[idTematicaPadre];
+		$cursor2a = mssql_query($sql2a);
+		if($reg2a = mssql_fetch_array($cursor2a)){
+			$nombreTemaPadre = $reg2a[nombreTematica];
+		}
+	}
+}
+
+// Lotes de Trabajo
+$sql3 = " SELECT * FROM LotesTrabajo WHERE idProyecto = " . $_SESSION["phsProyecto"];
+$sql3 = $sql3 . " AND etapaProyecto = " . $_SESSION["phsEtapa"];
+$sql3 = $sql3 . " AND idTematica = " . $_SESSION["phsTematica"];
+$sql3 = $sql3 . " AND idLote= " . $_SESSION["phsLote"];
+$cursor3 = mssql_query($sql3);
+if($reg3 = mssql_fetch_array($cursor3)){
+	$nombreLote = $reg3[numeroLote] . " - " . $reg3[nombreLote];
+}
+
+//Planos
+$sql4 = " SELECT * FROM Planos WHERE idProyecto = " . $_SESSION["phsProyecto"] . " ";
+$sql4 = $sql4 . " AND etapaProyecto = " . $_SESSION["phsEtapa"] . " ";
+$sql4 = $sql4 . " AND idTematica = " . $_SESSION["phsTematica"] . " ";
+$sql4 = $sql4 . " AND idLote = " . $_SESSION["phsLote"] . " ";
+$sql4 = $sql4 . " AND idPlano = " . $_SESSION["phsPlano"] . " ";
+$cursor4 = mssql_query($sql4);
+if($reg4 = mssql_fetch_array($cursor4)){
+	$nombrePlano = $reg4[idPlano] . " - " . $reg4[numeroPlano];
+	$numeroPlano = $reg4[numeroPlano];
+}
+
+//Revisiones
+$sql5 = " SELECT * FROM Revisiones WHERE idProyecto = " . $_SESSION["phsProyecto"] . " ";
+$sql5 = $sql5 . " AND etapaProyecto = " . $_SESSION["phsEtapa"] . " ";
+$sql5 = $sql5 . " AND idTematica = " . $_SESSION["phsTematica"] . " ";
+$sql5 = $sql5 . " AND idLote = " . $_SESSION["phsLote"] . " ";
+$sql5 = $sql5 . " AND idPlano = " . $_SESSION["phsPlano"] . " ";
+$sql5 = $sql5 . " AND idRevision = " . $cualRevision;
+$cursor5 = mssql_query($sql5);
+if($reg5 = mssql_fetch_array($cursor5)){
+	$nombreRevision = "R".$reg5[numeroRevision];
+}
+
+//Ruta de Los Archivos
+if($_SESSION["phsTematica"] != $_SESSION["phsTematicaPadre"]){
+	$ruta = "/enlinea/quimbo/PHSFiles/" . $_SESSION["phsProyecto"] . "/T".$_SESSION["phsTematicaPadre"]."/T".$_SESSION["phsTematica"]."/".$_SESSION["phsLote"]."/".$numeroPlano."/".$nombreRevision;
+}
+else{
+	$ruta = "/enlinea/quimbo/PHSFiles/" . $_SESSION["phsProyecto"] . "/T".$_SESSION["phsTematica"]."/".$_SESSION["phsLote"]."/".$numeroPlano."/".$nombreRevision;
+}
+
+//Subida y Grabación de la Comunicación
+if(isset($recarga) && trim($recarga) == "1"){
+	
+	//Carga de Archivo PDF
+	//--------------------------------
+	//Hace el upload del archivo
+	if (trim($archivoCom_name) != "")	{
+		$extension = explode(".",$archivoCom_name);
+		$num = count($extension)-1;
+		echo "Archivo : ".$archivoCom . "<br>" ;
+		echo "Archivo - Nombre: ".$archivoCom_name . "<br>" ;
+		echo "Archivo - Ruta Completa: ".$_SERVER['DOCUMENT_ROOT'].$ruta."/".$archivoCom_name;
+		if (($extension[$num] == "pdf") OR ($extension[$num] == "PDF")) {
+			if (!copy($archivoCom, $_SERVER['DOCUMENT_ROOT'].$ruta."/".$archivoCom_name)) {
+				$copioarchivoCom = "NO";
+				echo "Error al copiar el archivo <br>";
+			}
+			else {
+				$copioarchivoCom = "SI";
+				echo "Archivo PDF se copió en el servidor con exito <br>";
+			}
+		}
+		else {
+			echo "El formato de archivo no es valido. Solo .pdf <br>";
+		}
+	}
+	//--------------------------------------	
+	
+	$cursorTran1 = mssql_query(" BEGIN TRANSACTION ");
+	
+	$sqlIn1 = " INSERT INTO ComunicacionesPorRevision ( idProyecto, etapaProyecto, idTematica, idLote, idPlano, idRevision, archivoComunicacion, descripcionComunicacion ) ";
+	$sqlIn1 = $sqlIn1 .  " VALUES ( ";
+	$sqlIn1 = $sqlIn1 .  " " . $_SESSION["phsProyecto"] . ", ";
+	$sqlIn1 = $sqlIn1 .  " " . $_SESSION["phsEtapa"] . ", ";
+	$sqlIn1 = $sqlIn1 .  " " . $_SESSION["phsTematica"] . ", ";
+	$sqlIn1 = $sqlIn1 .  " " . $_SESSION["phsLote"] . ", ";
+	$sqlIn1 = $sqlIn1 .  " " . $_SESSION["phsPlano"] . ", ";
+	$sqlIn1 = $sqlIn1 .  " " . $cualRevision . ", ";
+	$sqlIn1 = $sqlIn1 .  " '" . $archivoCom_name . "', ";
+	$sqlIn1 = $sqlIn1 .  " '" . $descrCom . "' ";
+	$sqlIn1 = $sqlIn1 .  " ) ";
+	$cursorIn1 = mssql_query($sqlIn1);
+	
+	if(trim($cursorTran1) != "" && trim($cursorIn1) != "" ){
+		$cursorTran2 = mssql_query(" COMMIT TRANSACTION ");
+		if(trim($cursorTran2) != ""){
+			echo ("<script>alert('Grabación realizada exitosamente.');</script>");
+		}
+	}
+	else{
+		$cursorTran2 = mssql_query(" ROLLBACK TRANSACTION ");
+		if(trim($cursorTran2) != ""){
+			echo ("<script>alert('Error en la grabación.');</script>");
+		}
+	}
+	echo ("<script>window.close();MM_openBrWindow('menuRevisiones.php','winSogamoso','toolbar=yes,scrollbars=yes,resizable=yes,width=960,height=700');</script>");
+}
+
+//Elminación de la comunicación
+if(isset($recarga) && trim($recarga) == "2"){
+
+	$cursorTran1 = mssql_query(" BEGIN TRANSACTION ");
+	
+	$sqlNomCom = " SELECT archivoComunicacion FROM ComunicacionesPorRevision ";
+	$sqlNomCom = $sqlNomCom .  " WHERE idProyecto = " . $_SESSION["phsProyecto"] . " ";
+	$sqlNomCom = $sqlNomCom .  " AND etapaProyecto = " . $_SESSION["phsEtapa"] . " ";
+	$sqlNomCom = $sqlNomCom .  " AND idTematica = " . $_SESSION["phsTematica"] . " ";
+	$sqlNomCom = $sqlNomCom .  " AND idLote = " . $_SESSION["phsLote"] . " ";
+	$sqlNomCom = $sqlNomCom .  " AND idPlano = " . $_SESSION["phsPlano"] . " ";
+	$sqlNomCom = $sqlNomCom .  " AND idRevision = " . $cualRevision . " ";
+	$sqlNomCom = $sqlNomCom .  " AND idComunicacion = " . $cualComunicacion . " ";
+	$cursorNomCom = mssql_query($sqlNomCom);
+	if($regNomCom = mssql_fetch_array($cursorNomCom)){
+		$elArchivoCom = $regNomCom[archivoComunicacion];
+	}
+	
+	$sqlIn1 = " DELETE FROM ComunicacionesPorRevision ";
+	$sqlIn1 = $sqlIn1 .  " WHERE idProyecto = " . $_SESSION["phsProyecto"] . " ";
+	$sqlIn1 = $sqlIn1 .  " AND etapaProyecto = " . $_SESSION["phsEtapa"] . " ";
+	$sqlIn1 = $sqlIn1 .  " AND idTematica = " . $_SESSION["phsTematica"] . " ";
+	$sqlIn1 = $sqlIn1 .  " AND idLote = " . $_SESSION["phsLote"] . " ";
+	$sqlIn1 = $sqlIn1 .  " AND idPlano = " . $_SESSION["phsPlano"] . " ";
+	$sqlIn1 = $sqlIn1 .  " AND idRevision = " . $cualRevision . " ";
+	$sqlIn1 = $sqlIn1 .  " AND idComunicacion = " . $cualComunicacion . " ";
+	$cursorIn1 = mssql_query($sqlIn1);
+	
+	if(trim($cursorTran1) != "" && trim($cursorIn1) != "" ){
+		$cursorTran2 = mssql_query(" COMMIT TRANSACTION ");
+		if(trim($cursorTran2) != ""){
+			
+			//Se hace el borrado del archivo de Comunicación
+			$path = $_SERVER['DOCUMENT_ROOT'].$ruta."/".$elArchivoCom;
+			echo $path;
+			unlink($path);
+		
+			echo ("<script>alert('Operación realizada exitosamente.');</script>");
+		}
+	}
+	else{
+		$cursorTran2 = mssql_query(" ROLLBACK TRANSACTION ");
+		if(trim($cursorTran2) != ""){
+			echo ("<script>alert('Error en la operación.');</script>");
+		}
+	}
+	echo ("<script>window.close();MM_openBrWindow('menuRevisiones.php','winSogamoso','toolbar=yes,scrollbars=yes,resizable=yes,width=960,height=700');</script>");
+	
+}
+
+
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<LINK REL="stylesheet" HREF="../css/estilo.css" TYPE="text/css">
+<title>::: Sistema de Gesti&oacute;n de Informaci&oacute;n en L&iacute;nea :::</title>
+
+<script language="javascript">
+<!--
+
+
+function envia1(){
+		var v1 = 's';
+		var v2 = 's';
+		var v3 = 's';
+		var v4 = 's';
+		var m1 = '';
+		var m2 = '';
+		var m3 = '';
+		var m4 = '';
+		var mensaje = '';
+		
+		if(document.form1.archivoCom.value == ''){
+			v1 = 'n';
+			m1 = 'El Archivo de la Comunicación es un dato Obligatorio \n';
+		}
+		
+		if ((v1=='s') && (v2=='s')  && (v3=='s') && (v4=='s')) {
+			document.form1.recarga.value = '1';
+			document.form1.submit();
+		}
+		else {
+			mensaje = m1 + m2 + m3 + m4;
+			alert (mensaje);
+		}
+	}
+//-->
+</script>
+
+</head>
+
+<body  leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="fondo" >
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+	<tr class="TituloTabla">
+		<td>::: Sistema de Gesti&oacute;n de Informaci&oacute;n en L&iacute;nea :::</td>
+  </tr>
+	
+	<tr>
+	  <td><table width="100%" cellspacing="1">
+        <tr>
+          <td width="25%" class="TituloTabla2">Proyecto</td>
+          <td class="TxtTabla"><span class="menu2"><? echo $nombreProyecto; ?></span></td>
+        </tr>
+        <tr>
+          <td class="TituloTabla2">Tema</td>
+          <td class="TxtTabla"><span class="menu2">
+            <? 
+			if(trim($nombreTemaPadre) != ""){
+				echo $nombreTemaPadre . " ::: " .$nombreTematica; 
+			}
+			else{
+				echo $nombreTematica; 
+			}
+		?>
+          </span></td>
+        </tr>
+        <tr>
+          <td class="TituloTabla2">Lote de Trabajo </td>
+          <td class="TxtTabla"><span class="menu2"><? echo $nombreLote; ?></span></td>
+        </tr>
+        <tr>
+          <td class="TituloTabla2">Documento</td>
+          <td class="TxtTabla"><span class="menu2"><? echo $nombrePlano; ?></span></td>
+        </tr>
+        <tr>
+          <td class="TituloTabla2">Revisi&oacute;n</td>
+          <td class="TxtTabla"><span class="menu2"><? echo $nombreRevision; ?></span></td>
+        </tr>
+        
+      </table></td>
+  </tr>
+	<tr>
+	  <td>&nbsp;</td>
+  </tr>
+	<tr>
+	  <td>
+	  <form action="" method="post" enctype="multipart/form-data" name="form1">
+	  <table width="100%" cellspacing="1">
+        <tr>
+          <td colspan="2" class="TituloTabla2">Agregar una Comunicaci&oacute;n </td>
+          </tr>
+        <tr>
+          <td class="TituloTabla2">Archivo de la Comunicaci&oacute;n </td>
+          <td class="TxtTabla"><input name="archivoCom" type="file" class="CajaTexto" id="archivoCom" size="60"></td>
+        </tr>
+        <tr>
+          <td class="TituloTabla2">Descripci&oacute;n de la Comunicaci&oacute;n </td>
+          <td class="TxtTabla"><input name="descrCom" type="text" class="CajaTexto" id="descrCom" size="60" /></td>
+        </tr>
+
+        <tr>
+          <td colspan="2" align="right"><input name="recarga" type="hidden" id="recarga" value="0" />
+            <input name="cualRevision" type="hidden" id="cualRevision" value="<? echo $cualRevision; ?>" />
+            <input name="Submit" type="button" class="Boton" onclick="envia1()" value="Guardar" /></td>
+          </tr>
+      </table>
+	  </form>	  </td>
+  </tr>
+	<tr>
+	  <td><?
+		//Consulta de las Comunicaciones Asociadas a la Revisión
+		$sqlCom = " SELECT * FROM ComunicacionesPorRevision WHERE idProyecto = " . $_SESSION["phsProyecto"] . " ";
+		$sqlCom = $sqlCom . " AND etapaProyecto = " . $_SESSION["phsEtapa"] . " ";
+		$sqlCom = $sqlCom . " AND idTematica = " . $_SESSION["phsTematica"] . " ";
+		$sqlCom = $sqlCom . " AND idLote = " . $_SESSION["phsLote"] . " ";
+		$sqlCom = $sqlCom . " AND idPlano = " . $_SESSION["phsPlano"] . " ";
+		$sqlCom = $sqlCom . " AND idRevision = " . $cualRevision . " ";
+		$cursorCom = mssql_query($sqlCom);
+	  ?></td>
+  </tr>
+	<tr>
+	  <td><table width="100%" cellspacing="1">
+        <tr class="TituloTabla2">
+          <td colspan="4">Comunicaciones Asociadas a la Revision </td>
+        </tr>
+        <tr class="TituloTabla2">
+          <td>Archivo</td>
+          <td>Descripci&oacute;n</td>
+          <td width="1%">Ver </td>
+          <td width="1%">&nbsp;</td>
+        </tr>
+		<? 
+			while($regCom = mssql_fetch_array($cursorCom)){ 
+				if($_SESSION["phsTematica"] != $_SESSION["phsTematicaPadre"]){
+					$rutaFile = "../PHSFiles/" . $_SESSION["phsProyecto"] . "/T".$_SESSION["phsTematicaPadre"]."/T".$_SESSION["phsTematica"]."/".$_SESSION["phsLote"]."/".$numeroPlano."/".$nombreRevision;
+				} else {
+					$rutaFile = "../PHSFiles/" . $_SESSION["phsProyecto"] . "/T".$_SESSION["phsTematica"]."/".$_SESSION["phsLote"]."/".$numeroPlano."/".$nombreRevision;
+				}
+		?>
+        <tr class="TxtTabla">
+          <td><? echo $regCom[archivoComunicacion]; ?></td>
+          <td><? echo $regCom[descripcionComunicacion]; ?></td>
+          <td align="center"><a href="#"><img src="../images/ver.gif" width="16" height="16" border="0" onclick="MM_openBrWindow('<? echo $rutaFile."/".$regCom[archivoComunicacion]; ?>','','width=800,height=600')"></a></td>
+          <td align="center"><a href="detalleComunicaciones.php?recarga=2&cualComunicacion=<? echo $regCom[idComunicacion]; ?>&cualRevision=<? echo $cualRevision; ?>"><img src="../images/del.gif" width="14" height="13" border="0"></a></td>
+        </tr>
+		<? } ?>
+      </table></td>
+  </tr>
+	<tr>
+	  <td>&nbsp;</td>
+  </tr>
+	<tr class="copyr">
+	  <td>Desarrollado por INGETEC S.A. &copy; 2009 - Departamento de Sistemas </td>
+  </tr>
+</table>
+</body>
+</html>

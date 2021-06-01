@@ -1,0 +1,31 @@
+body {
+margin: 0px;
+padding: 0px; 
+}
+
+#mainframe {
+display: block;
+height: 80%; 
+overflow: auto;
+color: black;
+background-color: white;
+}
+
+#bottomframe { 
+display: block;
+position: absolute;
+top: 80%;
+width: 100%;
+height: 20%; 
+overflow: auto; 
+color: white;
+background-color: black; 
+}
+
+
+
+.sometext {
+margin: 3em;
+padding: 1em;
+border: 2px solid red;
+}

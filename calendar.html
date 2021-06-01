@@ -1,0 +1,152 @@
+<html>
+<head>
+<title>Seleccionar fecha</title>
+<style>
+	td {font-family: Verdana; font-size: 10px;}
+</style>
+<link href="../css/estilo.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+
+// months as they appear in the calendar's title
+var ARR_MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+		"Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+// week day titles as they appear on the calendar
+var ARR_WEEKDAYS = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
+// day week starts from (normally 0-Mo or 1-Su)
+var NUM_WEEKSTART = 1;
+// path to the directory where calendar images are stored. trailing slash req.
+var STR_ICONPATH = '../images/';
+
+var re_url = new RegExp('datetime=(\\-?\\d+)');
+var dt_current = (re_url.exec(String(window.location))
+	? new Date(new Number(RegExp.$1)) : new Date());
+var re_id = new RegExp('id=(\\d+)');
+var num_id = (re_id.exec(String(window.location))
+	? new Number(RegExp.$1) : 0);
+var obj_caller = (window.opener ? window.opener.calendars[num_id] : null);
+
+if (obj_caller && obj_caller.year_scroll) {
+	// get same date in the previous year
+	var dt_prev_year = new Date(dt_current);
+	dt_prev_year.setFullYear(dt_prev_year.getFullYear() - 1);
+	if (dt_prev_year.getDate() != dt_current.getDate())
+		dt_prev_year.setDate(0);
+	
+	// get same date in the next year
+	var dt_next_year = new Date(dt_current);
+	dt_next_year.setFullYear(dt_next_year.getFullYear() + 1);
+	if (dt_next_year.getDate() != dt_current.getDate())
+		dt_next_year.setDate(0);
+}
+
+// get same date in the previous month
+var dt_prev_month = new Date(dt_current);
+dt_prev_month.setMonth(dt_prev_month.getMonth() - 1);
+if (dt_prev_month.getDate() != dt_current.getDate())
+	dt_prev_month.setDate(0);
+
+// get same date in the next month
+var dt_next_month = new Date(dt_current);
+dt_next_month.setMonth(dt_next_month.getMonth() + 1);
+if (dt_next_month.getDate() != dt_current.getDate())
+	dt_next_month.setDate(0);
+
+// get first day to display in the grid for current month
+var dt_firstday = new Date(dt_current);
+dt_firstday.setDate(1);
+dt_firstday.setDate(1 - (7 + dt_firstday.getDay() - NUM_WEEKSTART) % 7);
+
+// function passing selected date to calling window
+function set_datetime(n_datetime, b_close) {	
+  
+  if (!obj_caller) return;
+  
+	var dt_datetime = obj_caller.prs_time(
+		(document.cal ? document.cal.time.value : ''),
+		new Date(n_datetime)
+	);
+ 
+	if (!dt_datetime) return;
+	 
+  if (b_close) {
+		window.close();
+		obj_caller.target.value = (document.cal
+			? obj_caller.gen_tsmp(dt_datetime)
+			: obj_caller.gen_date(dt_datetime)
+		);
+	}
+	else obj_caller.popup(dt_datetime.valueOf());
+
+}
+
+</script>
+</head>
+<body marginheight="5" marginwidth="2" topmargin="2" leftmargin="2" rightmargin="2">
+<table class="clsOTable" cellspacing="0" border="0" width="100%">
+<tr><td>
+<table cellspacing="1" cellpadding="2" border="0" width="100%">
+<tr><td colspan="7"><table cellspacing="0" cellpadding="0" border="0" width="100%">
+<tr class="TituloProyecto">
+<script language="JavaScript">
+var nextm="calendar.html?datetime=" + dt_next_month.valueOf() + "&id=" + num_id ; 
+var nexty="calendar.html?datetime=" + dt_next_year.valueOf() + "&id=" + num_id ;
+var prevm="calendar.html?datetime=" + dt_prev_month.valueOf() + "&id=" + num_id; 
+var prevy="calendar.html?datetime=" + dt_prev_year.valueOf() + "&id=" + num_id;
+
+document.write(
+'<td >'+(obj_caller&&obj_caller.year_scroll?'<a href="' + prevy + '"><img src="'+STR_ICONPATH+'arrow_l.gif" width="7" height="7" border="0" alt="Año anterior"></a>&nbsp;':'')+'<a href="' + prevm + '"><img src="'+STR_ICONPATH+'arrow_l.gif" width="7" height="7" border="0" alt="Mes anterior"></a></td>'+
+'<td align="center" width="100%" >'+ARR_MONTHS[dt_current.getMonth()]+' '+dt_current.getFullYear() + '</td>'+
+'<td ><a href="' + nextm + '"><img src="'+STR_ICONPATH+'arrow_r.gif" width="7" height="7" border="0" alt="Mes siguiente"></a>'+(obj_caller && obj_caller.year_scroll?'&nbsp;<a href="' + nexty + '"><img src="'+STR_ICONPATH+'arrow_r.gif" width="7" height="7" border="0" alt="Año Siguiente"></a>':'')+'</td>'
+);
+</script>
+</tr>
+</table></td></tr>
+<tr>
+<script language="JavaScript">
+
+// print weekdays titles
+for (var n=0; n<7; n++)
+	document.write('<td align="center" class="TituloTabla2">'+ARR_WEEKDAYS[(NUM_WEEKSTART+n)%7]+'</td>');
+document.write('</tr>');
+
+// print calendar table
+var dt_current_day = new Date(dt_firstday);
+while (dt_current_day.getMonth() == dt_current.getMonth() ||
+	dt_current_day.getMonth() == dt_firstday.getMonth()) {
+	// print row heder
+	document.write('<tr>');
+	for (var n_current_wday=0; n_current_wday<7; n_current_wday++) {
+		if (dt_current_day.getDate() == dt_current.getDate() &&
+			dt_current_day.getMonth() == dt_current.getMonth())
+			// print current date
+			document.write('<td class="BarraTitulo" align="center" width="14%">');
+		else if (dt_current_day.getDay() == 0 || dt_current_day.getDay() == 6)
+			// weekend days
+			document.write('<td class="TxtNota" align="center" width="14%">');
+		else
+			// print working days of current month
+			document.write('<td class="TxtNota" align="center" width="14%">');
+
+		document.write('<a href="javascript:set_datetime('+dt_current_day.valueOf() +', true);">');
+
+		if (dt_current_day.getMonth() == this.dt_current.getMonth())
+			// print days of current month
+			document.write('<font color="#C18004">');
+		else 
+			// print days of other months
+			document.write('<font color="#606060">');
+			
+		document.write(dt_current_day.getDate()+'</font></a></td>');
+		dt_current_day.setDate(dt_current_day.getDate()+1);
+	}
+	// print row footer
+	document.write('</tr>');
+}
+if (obj_caller && obj_caller.time_comp)
+	document.write('<form onsubmit="javascript:set_datetime('+dt_current.valueOf()+', true)" name="cal"><tr><td colspan="7" bgcolor="#87CEFA"><font color="White" face="tahoma, verdana" size="2">Time: <input type="text" name="time" value="'+obj_caller.gen_time(this.dt_current)+'" size="8" maxlength="8"></font></td></tr></form>');
+</script>
+</table></tr>
+</table>
+</body>
+</html>
+

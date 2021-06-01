@@ -1,0 +1,214 @@
+body
+{
+	/*background:url(../images/tile.gif);*/
+	cursor: default;
+	/*scrollbar-face-color: #FF9933;
+	scrollbar-highlight-color:#FFFFFF;
+	scrollbar-3dlight-color:#FFFFFF;
+	scrollbar-darkshadow-color:#FFFFFF;
+	scrollbar-shadow-color:#FFFFFF;
+	scrollbar-arrow-color:#000000;
+	scrollbar-track-color:#FFFFFF;*/
+	border:0;	
+}
+
+.fondo {  background-color: #F3F6F9; }
+.Fecha {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #8D8D8D;
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-left: 1px;
+	vertical-align: top;
+	text-align: right;
+
+}
+.copyr {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color:  #FFFFFF;
+	background-color: #999999;
+	vertical-align: middle;
+	text-align: center;
+
+
+
+}
+.CajaTexto {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #376b9a;
+	background-color: #FFFFFF;
+	border-top: 1px solid #376B9a;
+	border-right: 1px solid #D8D8D8;
+	border-bottom: 1px solid #D8D8D8;
+	border-left: 1px solid #376B9a;
+}
+.Boton {
+	color: #376B9A;
+	background-color: #EFEFEF;
+	border: 1px solid #376b9A;
+	font-size: 10px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-variant: normal;
+}
+.TituloUsuario {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #FFFFFF;
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-left: 1px;
+	background-color: #376B9A;
+	text-decoration:none;
+	font-weight: bold;
+}
+.FichaAct {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #CC3300;
+	text-align: center;
+	vertical-align: top;
+	border-top-width: 1px;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-top-style: groove;
+	border-right-style: groove;
+	border-bottom-style: groove;
+	border-left-style: groove;
+	border-top-color: #CC3300;
+	border-right-color: #CC3300;
+	border-left-color: #CC3300;
+	background-color: #FFCAB0;
+}
+.FichaInAct {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #666666;
+	text-align: center;
+	vertical-align: top;
+	border-top-width: 1px;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-top-style: dotted;
+	border-right-style: dotted;
+	border-bottom-style: dotted;
+	border-left-style: dotted;
+	border-top-color: #CC3300;
+	border-right-color: #CC3300;
+	border-left-color: #CC3300;
+	text-decoration: none;
+}
+.FichaInAct1 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #666666;
+	text-align: center;
+	vertical-align: top;
+	border: none;
+	text-decoration: none;
+}
+.TxtNota2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 20px;
+	color: #000000;
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-left: 1px;
+	font-weight: bold;
+	font-variant: small-caps;
+	vertical-align: middle;
+}
+.Vinculos1 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #CC3300;
+	background-color: #E9E9E9;
+	vertical-align: top;
+	font-weight: bold;
+}
+
+.TituloTabla {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #333333;
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-left: 1px;
+	background-color: #CCCCCC;
+	font-weight: bold;
+}
+.TxtTabla {
+
+
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #333366; padding-top: 1px; padding-right: 1px; padding-bottom: 1px; padding-left: 1px; background-color: #E9E9E9;
+}
+.TituloTabla2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #333333;
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-left: 1px;
+	background-color: #CCCCCC;
+	font-weight: bold;
+	text-align: center;
+	vertical-align: middle;
+}
+.menu {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: x-small;
+	font-weight: bold;
+	font-variant: small-caps;
+	color: #666666;
+	text-decoration: none;
+}
+.menu2 {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: small;
+	font-weight: bold;
+	font-variant: normal;
+	color: #666666;
+	text-decoration: none;
+}
+.Encuesta {
+
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #8D8D8D;
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-left: 1px;
+	vertical-align: top;
+}
+.TxtNota1 {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	color: #376B9A;
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-left: 1px;
+	font-weight: bold;
+	font-variant: small-caps;
+	vertical-align: middle;
+}
+.TxtTabla2 {
+
+
+
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; color: #CC3300; padding-top: 1px; padding-right: 1px; padding-bottom: 1px; padding-left: 1px; background-color: #E9E9E9;
+}
